@@ -16,7 +16,7 @@ const Header = () => {
           onClick={() => navigate('/')}
         >
           <div className="brand-mark" />
-          <span className="brand-text">ChainVerify</span>
+          <span className="brand-text">EduChain</span>
         </button>
 
         <nav className="main-nav">

@@ -5,7 +5,7 @@ const FooterSection = () => {
     <footer className="footer-section">
       <div className="footer-inner">
         <div className="footer-brand">
-          <h3>ChainVerify</h3>
+          <h3>EduChain</h3>
           <p>
             Building the future of trust in educational and professional
             credentials through decentralized technology.
