@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck, Database, Sparkles, Network } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import FooterSection from '../sections/FooterSection.jsx';
 
 const steps = [
@@ -30,6 +31,8 @@ const steps = [
 ];
 
 const HowItWorksPage = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <main className="min-h-screen bg-[#0a0e1a] text-[#94a3b8] pt-24 pb-24">
@@ -54,12 +57,14 @@ const HowItWorksPage = () => {
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   type="button"
+                  onClick={() => navigate('/issue')}
                   className="rounded-lg bg-[#4169E1] px-8 py-3 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(65,105,225,0.55)] transition hover:brightness-110"
                 >
                   Issue Certificate
                 </button>
                 <button
                   type="button"
+                  onClick={() => navigate('/verify')}
                   className="rounded-lg border border-[#4169E1] px-8 py-3 text-sm font-semibold text-[#4169E1] bg-transparent transition hover:bg-[#4169E1]/5"
                 >
                   Verify Certificate

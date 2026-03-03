@@ -11,6 +11,7 @@ import StudentsPage from './pages/StudentsPage.jsx';
 import ApiPage from './pages/ApiPage.jsx';
 import ConnectWalletPage from './pages/ConnectWalletPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import IssueCertificatePage from './pages/IssueCertificatePage.jsx';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/institutions" element={<InstitutionsPage />} />
         <Route path="/students" element={<StudentsPage />} />
         <Route path="/verify" element={<VerifyPage />} />
+        <Route path="/issue" element={<IssueCertificatePage />} />
         <Route path="/api" element={<ApiPage />} />
         <Route path="/connect-wallet" element={<ConnectWalletPage />} />
         <Route path="/profile" element={<ProfilePage />} />
