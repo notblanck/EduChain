@@ -1,9 +1,11 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useWallet } from '../../context/WalletContext.jsx';
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { wallet, connect, disconnect } = useWallet();
 
   const isLanding = location.pathname === '/';
 
@@ -23,23 +25,34 @@ const Header = () => {
           <NavLink to="/" className="nav-link">
             How it Works
           </NavLink>
-          <NavLink to="/" className="nav-link">
+          <NavLink to="/institutions" className="nav-link">
             Institutions
           </NavLink>
-          <NavLink to="/" className="nav-link">
+          <NavLink to="/students" className="nav-link">
             Students
           </NavLink>
           <NavLink to="/verify" className="nav-link">
             Verify
           </NavLink>
+          <NavLink to="/api" className="nav-link">
+            API
+          </NavLink>
         </nav>
 
         <div className="header-actions">
-          <button type="button" className="btn btn-ghost" disabled={!isLanding}>
-            API
-          </button>
-          <button type="button" className="btn btn-primary">
-            Connect Wallet
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              if (wallet.connected) {
+                disconnect();
+              } else {
+                connect('MetaMask');
+                navigate('/connect-wallet');
+              }
+            }}
+          >
+            {wallet.connected ? 'Wallet Connected' : 'Connect Wallet'}
           </button>
           <div className="avatar-circle">
             <span>AR</span>

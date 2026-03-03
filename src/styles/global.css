@@ -1,17 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --bg-body: #050816;
-  --bg-surface: #0b1020;
-  --bg-card: #0f172a;
-  --bg-card-alt: #0b1120;
-  --accent: #2563eb;
+  --bg-body: #0a0e1a;
+  --bg-surface: #0d1117;
+  --bg-card: #1a1f2e;
+  --bg-card-alt: #0f1419;
+  --accent: #4169e1;
   --accent-soft: #dbeafe;
-  --accent-strong: #1d4ed8;
-  --accent-secondary: #4f46e5;
-  --accent-success: #22c55e;
-  --accent-warning: #facc15;
-  --accent-danger: #f97316;
+  --accent-strong: #4f75ff;
+  --accent-secondary: #5b9fe3;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
   --border-subtle: #1e293b;
-  --text-main: #e2e8f0;
+  --text-main: #ffffff;
   --text-muted: #94a3b8;
   --text-soft: #64748b;
   --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.65);
@@ -35,9 +39,8 @@ body,
 }
 
 body {
-  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
-  background: radial-gradient(circle at top left, #1e293b 0, #020617 45%, #000 100%);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top left, #020617 0, #0a0e1a 45%, #000 100%);
   color: var(--text-main);
 }
 
@@ -766,23 +769,23 @@ button {
 }
 
 .badge-issued {
-  background: rgba(34, 197, 94, 0.16);
-  color: #4ade80;
+  background: rgba(16, 185, 129, 0.16);
+  color: #10b981;
 }
 
 .badge-verified {
   background: rgba(59, 130, 246, 0.16);
-  color: #93c5fd;
+  color: #3b82f6;
 }
 
 .badge-pending {
-  background: rgba(250, 204, 21, 0.12);
-  color: #facc15;
+  background: rgba(245, 158, 11, 0.16);
+  color: #f59e0b;
 }
 
 .badge-revoked {
-  background: rgba(248, 113, 113, 0.12);
-  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
 }
 
 .table-pagination {

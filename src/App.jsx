@@ -5,13 +5,25 @@ import LandingPage from './pages/LandingPage.jsx';
 import VerifyPage from './pages/VerifyPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import CertificatePage from './pages/CertificatePage.jsx';
+import HowItWorksPage from './pages/HowItWorksPage.jsx';
+import InstitutionsPage from './pages/InstitutionsPage.jsx';
+import StudentsPage from './pages/StudentsPage.jsx';
+import ApiPage from './pages/ApiPage.jsx';
+import ConnectWalletPage from './pages/ConnectWalletPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 
 const App = () => {
   return (
     <AppShell>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<HowItWorksPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/institutions" element={<InstitutionsPage />} />
+        <Route path="/students" element={<StudentsPage />} />
         <Route path="/verify" element={<VerifyPage />} />
+        <Route path="/api" element={<ApiPage />} />
+        <Route path="/connect-wallet" element={<ConnectWalletPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/certificate" element={<CertificatePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
