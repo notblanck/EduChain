@@ -12,6 +12,11 @@ import ApiPage from './pages/ApiPage.jsx';
 import ConnectWalletPage from './pages/ConnectWalletPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import IssueCertificatePage from './pages/IssueCertificatePage.jsx';
+import NetworkStatusPage from './pages/NetworkStatusPage.jsx';
+import DocsPage from './pages/DocsPage.jsx';
+import CaseStudiesPage from './pages/CaseStudiesPage.jsx';
+import CommunityPage from './pages/CommunityPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 
 const App = () => {
   return (
@@ -26,6 +31,11 @@ const App = () => {
         <Route path="/api" element={<ApiPage />} />
         <Route path="/connect-wallet" element={<ConnectWalletPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/network" element={<NetworkStatusPage />} />
+        <Route path="/docs" element={<DocsPage />} />
+        <Route path="/case-studies" element={<CaseStudiesPage />} />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/certificate" element={<CertificatePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
