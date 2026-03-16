@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const FooterSection = () => {
   return (
@@ -15,24 +16,42 @@ const FooterSection = () => {
           <div className="footer-column">
             <h4>Platform</h4>
             <ul>
-              <li>Issuance Tool</li>
-              <li>Verification Hub</li>
-              <li>Network Status</li>
+              <li>
+                <Link to="/insurance">Insurance Tool</Link>
+              </li>
+              <li>
+                <Link to="/verify">Verification Hub</Link>
+              </li>
+              <li>
+                <Link to="/network-status">Network Status</Link>
+              </li>
             </ul>
           </div>
           <div className="footer-column">
             <h4>Resources</h4>
             <ul>
-              <li>Documentation</li>
-              <li>API Reference</li>
-              <li>Case Studies</li>
+              <li>
+                <Link to="/docs">Documentation</Link>
+              </li>
+              <li>
+                <Link to="/api-reference">API Reference</Link>
+              </li>
+              <li>
+                <Link to="/case-studies">Case Studies</Link>
+              </li>
             </ul>
           </div>
           <div className="footer-column">
             <h4>Connect</h4>
             <ul>
-              <li>Community</li>
-              <li>Email</li>
+              <li>
+                <a href="#community" target="_blank" rel="noopener noreferrer">
+                  Community
+                </a>
+              </li>
+              <li>
+                <a href="mailto:contact@educhain.com">Email Contact</a>
+              </li>
             </ul>
           </div>
         </div>

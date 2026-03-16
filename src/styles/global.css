@@ -449,6 +449,17 @@ button {
   margin-top: 4px;
 }
 
+.footer-column a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-column a:hover {
+  color: var(--text-main);
+  text-decoration: underline;
+}
+
 /* Verify page */
 .verify-page {
   padding: 80px 24px 56px;
