@@ -17,7 +17,7 @@ const CtaSection = () => {
         <button
           type="button"
           className="btn btn-light"
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/register')}
         >
           Get Started Now
         </button>

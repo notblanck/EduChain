@@ -17,6 +17,7 @@ import DocsPage from './pages/DocsPage.jsx';
 import CaseStudiesPage from './pages/CaseStudiesPage.jsx';
 import CommunityPage from './pages/CommunityPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/issue" element={<IssueCertificatePage />} />
         <Route path="/api" element={<ApiPage />} />
         <Route path="/connect-wallet" element={<ConnectWalletPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/network" element={<NetworkStatusPage />} />
         <Route path="/docs" element={<DocsPage />} />

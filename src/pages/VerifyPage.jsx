@@ -9,18 +9,11 @@ const VerifyPage = () => {
   const [result, setResult] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const fileInputRef = useRef(null);
+  const objectUrlRef = useRef(null);
 
   const hashFromQuery = searchParams.get('hash') || '';
 
-  useEffect(() => {
-    if (hashFromQuery) {
-      setInput(hashFromQuery);
-      handleVerify(hashFromQuery);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hashFromQuery]);
-
-  const handleVerify = value => {
+  function handleVerify(value) {
     const target = (value ?? input).trim();
     if (!target) return;
 
@@ -38,7 +31,15 @@ const VerifyPage = () => {
       }
       setVerifying(false);
     }, 400);
-  };
+  }
+
+  useEffect(() => {
+    if (hashFromQuery) {
+      setInput(hashFromQuery);
+      handleVerify(hashFromQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hashFromQuery]);
 
   const onSubmit = e => {
     e.preventDefault();
@@ -49,7 +50,14 @@ const VerifyPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+
     const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
+
     setUploadedImage({
       name: file.name,
       size: file.size,
@@ -60,6 +68,15 @@ const VerifyPage = () => {
   const openFilePicker = () => {
     fileInputRef.current?.click();
   };
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#0a0e1a] text-[#94a3b8] pt-24 pb-24">
