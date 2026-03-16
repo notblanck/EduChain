@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CtaSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="cta-section">
       <div className="cta-inner">
@@ -11,7 +14,11 @@ const CtaSection = () => {
             and verifiers today.
           </p>
         </div>
-        <button type="button" className="btn btn-light">
+        <button
+          type="button"
+          className="btn btn-light"
+          onClick={() => navigate('/profile')}
+        >
           Get Started Now
         </button>
       </div>

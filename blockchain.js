@@ -1,5 +1,5 @@
 // Simplified Blockchain Implementation for Academic Credentials
-class Blockchain {
+export class Blockchain {
     constructor() {
         this.chain = [this.createGenesisBlock()];
         this.pendingCredentials = [];
@@ -140,5 +140,10 @@ class Blockchain {
     }
 }
 
-// Initialize blockchain instance
-const blockchain = new Blockchain();
+// Initialize blockchain instance (shared singleton)
+export const blockchain = new Blockchain();
+
+// Optional: expose on window for any legacy non-module usage
+if (typeof window !== 'undefined') {
+    window.blockchain = blockchain;
+}
