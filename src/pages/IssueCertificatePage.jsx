@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { GraduationCap, Hash, Building2, CalendarDays, User2, BookOpenText } from 'lucide-react';
 import FooterSection from '../sections/FooterSection.jsx';
+import { blockchain } from '../../blockchain.js';
+import { Link } from 'react-router-dom';
 
 const initialForm = {
   studentName: '',
@@ -42,16 +44,24 @@ const IssueCertificatePage = () => {
     setSubmitting(true);
     setResult(null);
 
-    // Simulated "minting" / issuance result.
-    await new Promise(r => setTimeout(r, 900));
-    const mockHash = `0x${Math.random().toString(16).slice(2).padEnd(32, '0').slice(0, 32)}...`;
+    try {
+      // Simulate a short network / mining delay for UX
+      await new Promise(r => setTimeout(r, 900));
 
-    setResult({
-      status: 'ISSUED',
-      hash: mockHash,
-      payload: { ...form }
-    });
-    setSubmitting(false);
+      const issued = blockchain.addCredential(form);
+
+      setResult({
+        status: 'ISSUED',
+        hash: issued.hash,
+        payload: issued
+      });
+    } catch (err) {
+      // In a real app we might show a toast; for now we just clear the result state.
+      console.error('Error issuing credential', err);
+      setResult(null);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -147,13 +157,24 @@ const IssueCertificatePage = () => {
                       <span className="text-[11px] uppercase tracking-[0.18em] text-[#64748b]">
                         CERTIFICATE HASH
                       </span>
-                      <code className="rounded-lg bg-black/20 p-3 font-mono text-xs text-white ring-1 ring-white/10">
+                      <code className="rounded-lg bg-black/20 p-3 font-mono text-xs text-white ring-1 ring-white/10 break-all">
                         {result.hash}
                       </code>
                     </div>
                     <p className="text-xs text-[#94a3b8]">
                       Use the hash or credential ID on the Verify page to validate authenticity.
                     </p>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-[#64748b]">
+                        QUICK VERIFY LINK
+                      </span>
+                      <Link
+                        to={`/verify?hash=${encodeURIComponent(result.hash)}`}
+                        className="inline-flex items-center text-[11px] font-semibold text-[#5B9FE3] hover:underline break-all"
+                      >
+                        Open verification for this hash
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}
