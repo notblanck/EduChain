@@ -54,9 +54,14 @@ const Header = () => {
           >
             {wallet.connected ? 'Wallet Connected' : 'Connect Wallet'}
           </button>
-          <div className="avatar-circle">
+          <button
+            type="button"
+            className="avatar-circle"
+            aria-label="Open profile registration"
+            onClick={() => navigate('/register')}
+          >
             <span>AR</span>
-          </div>
+          </button>
         </div>
       </div>
     </header>
