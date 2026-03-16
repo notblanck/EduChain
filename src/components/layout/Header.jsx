@@ -52,7 +52,9 @@ const Header = () => {
               }
             }}
           >
-            {wallet.connected ? 'Wallet Connected' : 'Connect Wallet'}
+            {wallet.connected && wallet.address 
+              ? `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}` 
+              : 'Connect Wallet'}
           </button>
           <button
             type="button"

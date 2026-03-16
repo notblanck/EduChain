@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 
 const WalletContext = createContext(null);
 
@@ -9,14 +9,71 @@ export const WalletProvider = ({ children }) => {
     provider: ''
   });
 
-  const connect = providerName => {
-    // Simulated connection – replace with real wallet integration as needed
-    const mockAddress = '0xA1B2...C3D4';
-    setWallet({
-      connected: true,
-      address: mockAddress,
-      provider: providerName
-    });
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedAddress = localStorage.getItem('walletAddress');
+    if (savedAddress) {
+      setWallet({
+        connected: true,
+        address: savedAddress,
+        provider: 'MetaMask'
+      });
+    }
+  }, []);
+
+  const handleAccountsChanged = useCallback((accounts) => {
+    if (accounts.length === 0) {
+      // User disconnected
+      disconnect();
+    } else {
+      const newAddress = accounts[0];
+      setWallet({
+        connected: true,
+        address: newAddress,
+        provider: 'MetaMask'
+      });
+      localStorage.setItem('walletAddress', newAddress);
+    }
+  }, []);
+
+  const handleChainChanged = useCallback(() => {
+    window.location.reload();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+
+      return () => {
+        if (window.ethereum.removeListener) {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          window.ethereum.removeListener('chainChanged', handleChainChanged);
+        }
+      };
+    }
+  }, [handleAccountsChanged, handleChainChanged]);
+
+  const connect = async (providerName = 'MetaMask') => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts.length > 0) {
+          const address = accounts[0];
+          setWallet({
+            connected: true,
+            address,
+            provider: providerName
+          });
+          localStorage.setItem('walletAddress', address);
+        }
+      } catch (err) {
+        console.error('Failed to connect wallet:', err);
+        alert('Failed to connect wallet. See console for details.');
+      }
+    } else {
+      alert('Please install MetaMask to use this app.');
+    }
   };
 
   const disconnect = () => {
@@ -25,6 +82,7 @@ export const WalletProvider = ({ children }) => {
       address: '',
       provider: ''
     });
+    localStorage.removeItem('walletAddress');
   };
 
   const value = useMemo(
@@ -33,7 +91,7 @@ export const WalletProvider = ({ children }) => {
       connect,
       disconnect
     }),
-    [wallet]
+    [wallet, connect, disconnect] // Recreate if these functions change, though disconnect could be useCallback too if needed
   );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
