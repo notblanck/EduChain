@@ -1,25 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { GraduationCap, Hash, Building2, CalendarDays, User2, BookOpenText, AlertCircle, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { GraduationCap, Hash, Building2, CalendarDays, User2, BookOpenText, CheckCircle2, ExternalLink } from 'lucide-react';
 import FooterSection from '../sections/FooterSection.jsx';
 import { Link } from 'react-router-dom';
-import { useWallet } from '../context/WalletContext.jsx';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../contract/config.js';
-
-// keccak256 via SubtleCrypto (SHA-256 used as equivalent for browser env)
-async function sha256Hex(str) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Convert 0x hex string to bytes32 (pad to 32 bytes)
-function hexToBytes32(hexStr) {
-  const cleanHex = hexStr.startsWith('0x') ? hexStr.slice(2) : hexStr;
-  const padded = cleanHex.padEnd(64, '0').slice(0, 64);
-  return '0x' + padded;
-}
+import { blockchain } from '../../blockchain.js';
 
 const initialForm = {
   studentName: '',
@@ -31,14 +14,12 @@ const initialForm = {
 };
 
 const IssueCertificatePage = () => {
-  const { wallet } = useWallet();
   const [form, setForm] = useState(() => ({
     ...initialForm,
     issueDate: new Date().toISOString().slice(0, 10)
   }));
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
 
   const canSubmit = useMemo(() => {
     return (
@@ -60,53 +41,22 @@ const IssueCertificatePage = () => {
     e.preventDefault();
     if (!canSubmit || submitting) return;
 
-    if (!wallet.connected) {
-      setError('Please connect your wallet before issuing a certificate.');
-      return;
-    }
-
     setSubmitting(true);
     setResult(null);
-    setError(null);
 
     try {
-      // Dynamically import ethers to keep bundle lean
-      const { ethers } = await import('ethers');
+      // Simulate short delay for UX
+      await new Promise(r => setTimeout(r, 600));
 
-      // Generate SHA-256 hash from combined certificate fields
-      const rawData = `${form.credentialId}|${form.studentName}|${form.institution}|${form.degree}|${form.field}|${form.issueDate}`;
-      const certHashHex = await sha256Hex(rawData);
-      const certHashBytes32 = hexToBytes32(certHashHex);
-
-      // Connect to MetaMask
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-
-      // Instantiate contract
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-
-      // Send transaction
-      const tx = await contract.issueCertificate(certHashBytes32);
-      setResult({ status: 'PENDING', txHash: tx.hash, certHash: certHashHex });
-
-      // Wait for confirmation
-      const receipt = await tx.wait();
+      const issued = blockchain.addCredential(form);
 
       setResult({
         status: 'ISSUED',
-        txHash: receipt.hash,
-        certHash: certHashHex,
-        payload: { ...form }
+        certHash: issued.hash,
+        payload: issued
       });
     } catch (err) {
       console.error('Error issuing credential', err);
-      if (err.code === 4001 || err.code === 'ACTION_REJECTED') {
-        setError('Transaction rejected by user.');
-      } else if (err.message?.includes('Already issued')) {
-        setError('This certificate has already been issued on-chain.');
-      } else {
-        setError(`Transaction failed: ${err.reason || err.message || 'Unknown error'}`);
-      }
       setResult(null);
     } finally {
       setSubmitting(false);
@@ -131,13 +81,6 @@ const IssueCertificatePage = () => {
               </p>
             </header>
 
-            {!wallet.connected && (
-              <div className="mt-4 flex items-center gap-2 rounded-xl border border-yellow-500/40 bg-yellow-900/20 px-4 py-3 text-sm text-yellow-300">
-                <AlertCircle size={16} className="shrink-0" />
-                Please connect your wallet (MetaMask) before issuing a certificate.
-              </div>
-            )}
-
             <section className="mt-8 rounded-2xl border border-[#4169E1]/30 bg-[#1a1f2e] p-8 md:p-10 shadow-[0_24px_80px_rgba(15,23,42,0.9)]">
               <form onSubmit={onSubmit} className="space-y-5">
                 <div className="grid gap-5 md:grid-cols-2">
@@ -151,26 +94,12 @@ const IssueCertificatePage = () => {
 
                 <button
                   type="submit"
-                  disabled={!canSubmit || submitting || !wallet.connected}
+                  disabled={!canSubmit || submitting}
                   className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#4169E1] px-6 py-4 text-lg font-semibold text-white transition hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100"
                 >
-                  {submitting ? (
-                    <>
-                      <Loader2 size={20} className="animate-spin" />
-                      {result?.status === 'PENDING' ? 'Confirming on-chain...' : 'Issuing...'}
-                    </>
-                  ) : (
-                    'Issue Certificate'
-                  )}
+                  {submitting ? 'Issuing...' : 'Issue Certificate'}
                 </button>
               </form>
-
-              {error && (
-                <div className="mt-4 flex items-start gap-2 rounded-xl border border-red-500/40 bg-red-900/20 px-4 py-3 text-sm text-red-300">
-                  <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                  {error}
-                </div>
-              )}
 
               {result?.status === 'ISSUED' && (
                 <div className="mt-6 rounded-xl border border-[#2d3748] bg-[#0f1419] p-5">
@@ -186,11 +115,6 @@ const IssueCertificatePage = () => {
                     <InfoRow label="CERTIFICATE HASH">
                       <code className="rounded-lg bg-black/20 p-3 font-mono text-xs text-white ring-1 ring-white/10 break-all block">
                         {result.certHash}
-                      </code>
-                    </InfoRow>
-                    <InfoRow label="TRANSACTION HASH">
-                      <code className="rounded-lg bg-black/20 p-2 font-mono text-xs text-white ring-1 ring-white/10 break-all block">
-                        {result.txHash}
                       </code>
                     </InfoRow>
                     <div className="flex flex-col gap-1">
