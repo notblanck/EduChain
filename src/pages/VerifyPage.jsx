@@ -1,78 +1,44 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../contract/config.js';
+import { AlertCircle } from 'lucide-react';
+import { blockchain } from '../../blockchain.js';
 
 const VerifyPage = () => {
   const [searchParams] = useSearchParams();
   const [input, setInput] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState(null);
-  const [validationError, setValidationError] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const fileInputRef = useRef(null);
   const objectUrlRef = useRef(null);
 
   const hashFromQuery = searchParams.get('hash') || '';
 
-  // Pad/trim hex string to bytes32
-  function hexToBytes32(hexStr) {
-    const cleanHex = hexStr.startsWith('0x') ? hexStr.slice(2) : hexStr;
-    const padded = cleanHex.padEnd(64, '0').slice(0, 64);
-    return '0x' + padded;
-  }
-
-  function isValidHex(value) {
-    const clean = value.startsWith('0x') ? value.slice(2) : value;
-    return /^[0-9a-fA-F]{1,64}$/.test(clean);
-  }
-
   async function handleVerify(value) {
     const target = (value ?? input).trim();
     if (!target) return;
 
-    if (!isValidHex(target)) {
-      setValidationError('Invalid hash format. Please enter a valid hex string (0x...).');
-      setResult(null);
-      return;
-    }
-
-    setValidationError(null);
     setVerifying(true);
     setResult(null);
 
     try {
-      const { ethers } = await import('ethers');
+      const verification = blockchain.verifyCredential(target);
 
-      let provider;
-      if (typeof window !== 'undefined' && window.ethereum) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-      } else {
-        // Fall back to localhost for testing
-        provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
-      }
-
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-      const bytes32Hash = hexToBytes32(target);
-
-      const [exists, issuer, issuedAt] = await contract.getCertificate(bytes32Hash);
-
-      if (exists) {
+      if (verification.valid) {
         setResult({
           status: 'valid',
-          hash: target,
-          issuer,
-          issuedAt: Number(issuedAt)
+          hash: verification.credential.hash,
+          studentName: verification.credential.studentName,
+          issuer: verification.credential.institution,
+          degree: verification.credential.degree,
+          field: verification.credential.field
         });
       } else {
         setResult({ status: 'invalid' });
       }
     } catch (err) {
       console.error('Verification error', err);
-      setResult({
-        status: 'error',
-        message: err.reason || err.message || 'Failed to connect to the contract.'
-      });
+      setResult({ status: 'error', message: err.message || 'Verification failed.' });
     } finally {
       setVerifying(false);
     }
@@ -135,7 +101,7 @@ const VerifyPage = () => {
             <form onSubmit={onSubmit} className="space-y-5">
               <label className="block space-y-2" htmlFor="certificateId">
                 <span className="text-xs font-semibold text-[#64748b] uppercase tracking-[0.14em]">
-                  Certificate Hash (0x...)
+                  Certificate Hash / ID
                 </span>
                 <input
                   id="certificateId"
@@ -143,19 +109,11 @@ const VerifyPage = () => {
                   value={input}
                   onChange={e => {
                     setInput(e.target.value);
-                    setValidationError(null);
                   }}
-                  className="w-full rounded-lg border border-[#2d3748] bg-[#1a1f2e] px-4 py-3 text-sm text-white placeholder:text-[#64748b] outline-none transition focus:border-[#4169E1] font-mono"
-                  placeholder="Paste certificate hash (0x...)"
+                  className="w-full rounded-lg border border-[#2d3748] bg-[#1a1f2e] px-4 py-3 text-sm text-white placeholder:text-[#64748b] outline-none transition focus:border-[#4169E1]"
+                  placeholder="Paste certificate hash or credential ID"
                 />
               </label>
-
-              {validationError && (
-                <div className="flex items-center gap-2 rounded-xl border border-red-500/40 bg-red-900/20 px-4 py-3 text-sm text-red-300">
-                  <AlertCircle size={15} className="shrink-0" />
-                  {validationError}
-                </div>
-              )}
 
               <div
                 className="rounded-xl border-2 border-dashed border-[#2d3748] bg-[#1a1f2e] px-6 py-8 text-center cursor-pointer"
@@ -178,17 +136,10 @@ const VerifyPage = () => {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#4169E1] px-6 py-4 text-lg font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                className="w-full rounded-xl bg-[#4169E1] px-6 py-4 text-lg font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
                 disabled={verifying || !input.trim()}
               >
-                {verifying ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    Verifying…
-                  </>
-                ) : (
-                  'Verify Now'
-                )}
+                {verifying ? 'Verifying…' : 'Verify Now'}
               </button>
             </form>
 
@@ -206,27 +157,20 @@ const VerifyPage = () => {
                   <>
                     <p className="text-base font-semibold text-[#bbf7d0]">✅ Certificate Verified</p>
                     <p className="mt-1 text-xs text-[#a5b4fc]">
-                      This certificate hash exists on the EduChain smart contract.
+                      This certificate exists in the local EduChain ledger.
                     </p>
                     <div className="mt-4 grid gap-2 text-xs text-[#e5e7eb]">
+                      <DetailRow label="Student" value={result.studentName} />
+                      <DetailRow label="Institution" value={result.issuer} />
+                      <DetailRow label="Degree" value={result.degree} />
+                      <DetailRow label="Field" value={result.field} />
                       <DetailRow label="Certificate Hash" value={result.hash} mono />
-                      <DetailRow label="Issuer Address" value={result.issuer} mono />
-                      <DetailRow
-                        label="Issued On"
-                        value={result.issuedAt > 0
-                          ? new Date(result.issuedAt * 1000).toLocaleString()
-                          : 'N/A'
-                        }
-                      />
                     </div>
                   </>
                 ) : result.status === 'error' ? (
                   <>
                     <p className="text-base font-semibold text-yellow-300">⚠️ Verification Error</p>
                     <p className="mt-1 text-xs text-yellow-200">{result.message}</p>
-                    <p className="mt-2 text-xs text-[#64748b]">
-                      Make sure the contract is deployed and your network is correct.
-                    </p>
                   </>
                 ) : (
                   <>
